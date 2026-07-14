@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelGen Studio Ultimate</title>
+    <!-- Font Game Retro -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --window-bg: #14141a;
+            --border-color: #323244;
+            --accent-pink: #ff79c6;
+            --accent-green: #50fa7b;
+            --accent-blue: #8be9fd;
+            --accent-purple: #bd93f9;
+            --text-color: #f8f8f2;
+            --muted-text: #6272a4;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* CRT Screen Scanline effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+            background-size: 100% 4px;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .window {
+            background-color: var(--window-bg);
+            border: 4px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            background-color: var(--border-color);
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #0b0b0e;
+        }
+
+        .title-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            color: var(--accent-pink);
+            text-shadow: 1px 1px #000;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+        .dot-red { background-color: #ff5555; }
+        .dot-yellow { background-color: #ffb86c; }
+        .dot-green { background-color: #50fa7b; }
+
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        /* Grid Controls */
+        .grid-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label {
+            font-size: 14px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 8px;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+        }
+
+        input[type="text"], select, input[type="number"] {
+            background-color: #0b0b0e;
+            border: 2px solid var(--border-color);
+            padding: 10px;
+            color: var(--text-color);
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            outline: none;
+            border-radius: 4px;
+        }
+
+        input[type="text"]:focus, select:focus, input[type="number"]:focus {
+            border-color: var(--accent-pink);
+        }
+
+        /* Checkbox & Seed Control */
+        .seed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .seed-control input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Canvas Penampil */
+        .canvas-container {
+            position: relative;
+            background-color: #08080a;
+            border: 3px solid var(--border-color);
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+            background-image: 
+                linear-gradient(45deg, #14141a 25%, transparent 25%), 
+                linear-gradient(-45deg, #14141a 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #14141a 75%), 
+                linear-gradient(-45deg, transparent 75%, #14141a 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+            overflow: hidden;
+        }
+
+        .canvas-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+            display: none;
+        }
+
+        /* Palette Switcher & Colors */
+        .palette-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 3px;
+            background-color: #0b0b0e;
+            padding: 6px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 25px;
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            border: 1px solid #000;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        /* Terminal Logs */
+        .terminal {
+            background-color: #050507;
+            border: 2px solid var(--border-color);
+            padding: 8px;
+            border-radius: 4px;
+            height: 60px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--accent-green);
+        }
+
+        .terminal-line {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 2px;
+        }
+
+        .terminal-time {
+            color: var(--muted-text);
+        }
+
+        /* History Panel */
+        .history-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .history-list {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0;
+        }
+
+        .history-item {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #000;
+        }
+
+        .history-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            image-rendering: pixelated;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            padding: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-shadow: 1px 1px #000;
+        }
+
+        .btn-gen {
+            background-color: var(--accent-green);
+            color: #000;
+            border-bottom: 4px solid #2da64d;
+            text-shadow: none;
+        }
+
+        .btn-gen:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+        }
+
+        .btn-save {
+            background-color: var(--accent-blue);
+            color: #000;
+            border-bottom: 4px solid #4daec2;
+            text-shadow: none;
+            display: none;
+        }
+
+        .btn-save:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+        }
+
+        /* Loading Spinner */
+        .pixel-loader {
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-pink);
+            animation: spin 1s infinite steps(4);
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .placeholder-text {
+            color: var(--muted-text);
+            font-size: 18px;
+            text-align: center;
+            max-width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="window">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span class="title-text">PIXELGEN ULTIMATE v3.0</span>
+            <div class="window-controls">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+            </div>
+        </div>
+
+        <!-- Workspace -->
+        <div class="workspace">
+            
+            <!-- Canvas Area -->
+            <div class="canvas-container" id="canvasContainer">
+                <div class="placeholder-text" id="placeholder">[ READY TO BAKE ASSETS ]</div>
+                <div class="pixel-loader" id="loader"></div>
+                <img id="resultImage" src="" alt="AI Output">
+            </div>
+
+            <!-- Terminal Log -->
+            <div class="terminal" id="terminal">
+                <div class="terminal-line">
+                    <span class="terminal-time">[00:00:00]</span>
+                    <span>System initialized. Ready for game asset creation.</span>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="input-group">
+                <label>Deskripsi Gambar (Prompt)</label>
+                <input type="text" id="promptInput" placeholder="Ketik ide (misal: gold chest, epic sword)...">
+            </div>
+
+            <!-- Grid Settings -->
+            <div class="grid-settings">
+                <div class="input-group">
+                    <label>Tipe Gambar</label>
+                    <select id="styleSelect">
+                        <option value=", 16-bit retro RPG item, flat crisp pixel art">RPG Item (16-Bit)</option>
+                        <option value=", side-scroller game character sprite, pixel art hero">Character Sprite</option>
+                        <option value=", detailed retro pixel art parallax game background">Game Background (Scenic)</option>
+                        <option value=", isometric pixel art building, orthographic retro asset">Isometric Asset</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Ukuran (Ratio)</label>
+                    <select id="ratioSelect">
+                        <option value="512x512">Square 1:1 (Ikon/Item)</option>
+                        <option value="896x504">Landscape 16:9 (Background)</option>
+                        <option value="504x896">Portrait 9:16 (Karakter)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-settings">
+                <div class="input-group">
+                    <label>Latar Belakang (Background)</label>
+                    <select id="bgSelect">
+                        <option value=", dark solid background">Default (Gelap)</option>
+                        <option value=", plain solid bright green screen chroma-key background">Green Screen (Chroma Key)</option>
+                        <option value=", plain solid bright magenta screen chroma-key background">Magenta Screen (Chroma Key)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Seed AI</label>
+                    <input type="number" id="seedInput" value="12345">
+                    <div class="seed-control">
+                        <input type="checkbox" id="lockSeedCheckbox">
+                        <label for="lockSeedCheckbox" style="color: var(--accent-green); font-size: 7px;">Gunakan Seed Tetap</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Palette Selector -->
+            <div class="input-group">
+                <div class="palette-header">
+                    <label>Aseprite Palettes</label>
+                    <select id="paletteSelect" style="font-size:14px; padding:2px 5px;">
+                        <option value="pico8">PICO-8 (Fantasy Console)</option>
+                        <option value="gameboy">GameBoy Classic (Monochrome)</option>
+                        <option value="db16">DawnBringer 16 (RPG Gold)</option>
+                    </select>
+                </div>
+                <div class="palette-grid" id="paletteGrid"></div>
+            </div>
+
+            <!-- History Panel -->
+            <div class="history-panel" id="historyPanel" style="display: none;">
+                <label>Riwayat Pembuatan (History)</label>
+                <div class="history-list" id="historyList"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-container">
+                <button class="btn-gen" id="generateBtn">GENERATE ASSET</button>
+                <button class="btn-save" id="saveBtn">SIMPAN</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const promptInput = document.getElementById('promptInput');
+        const placeholder = document.getElementById('placeholder');
+        const loader = document.getElementById('loader');
+        const resultImage = document.getElementById('resultImage');
+        const terminal = document.getElementById('terminal');
+        const styleSelect = document.getElementById('styleSelect');
+        const ratioSelect = document.getElementById('ratioSelect');
+        const bgSelect = document.getElementById('bgSelect');
+        const seedInput = document.getElementById('seedInput');
+        const lockSeedCheckbox = document.getElementById('lockSeedCheckbox');
+        const paletteSelect = document.getElementById('paletteSelect');
+        const paletteGrid = document.getElementById('paletteGrid');
+        const historyPanel = document.getElementById('historyPanel');
+        const historyList = document.getElementById('historyList');
+
+        // Preset Palet Warna
+        const palettes = {
+            pico8: [
+                "#000000", "#1D2B53", "#7E2553", "#008751", "#AB5236", "#5F574F", "#C2C3C7", "#FFF1E8",
+                "#FF004D", "#FFA300", "#FFEC27", "#00E436", "#29ADFF", "#83769C", "#FF77A8", "#FFCCAA"
+            ],
+            gameboy: [
+                "#0f380f", "#306230", "#8bac0f", "#9bbc0f"
+            ],
+            db16: [
+                "#140c1c", "#442434", "#30346d", "#4e4a4e", "#854c30", "#346524", "#d04648", "#757161",
+                "#597dce", "#d27d2c", "#8595a1", "#6daa2c", "#d2aa99", "#6abe30", "#5fcde4", "#fed37d"
+            ]
+        };
+
+        // Render Palet Warna
+        function loadPalette(key) {
+            paletteGrid.innerHTML = '';
+            palettes[key].forEach(hex => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = hex;
+                swatch.title = hex;
+                swatch.addEventListener('click', () => {
+                    writeLog(`Hex Color Selected: ${hex}`);
+                });
+                paletteGrid.appendChild(swatch);
+            });
+        }
+
+        // Jalankan Palet Pertama
+        loadPalette('pico8');
+        paletteSelect.addEventListener('change', (e) => loadPalette(e.target.value));
+
+        // Tulis Log Terminal
+        function writeLog(text) {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const logLine = document.createElement('div');
+            logLine.className = 'terminal-line';
+            logLine.innerHTML = `<span class="terminal-time">[${timeStr}]</span> <span>${text}</span>`;
+            terminal.appendChild(logLine);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Simpan Riwayat Ke Array
+        const history = [];
+        function addToHistory(url, prompt, seed) {
+            historyPanel.style.display = 'flex';
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `<img src="${url}" alt="history">`;
+            item.addEventListener('click', () => {
+                resultImage.src = url;
+                promptInput.value = prompt;
+                seedInput.value = seed;
+                writeLog(`Restored asset with Seed: ${seed}`);
+            });
+            historyList.insertBefore(item, historyList.firstChild);
+        }
+
+        // Tombol Generate
+        generateBtn.addEventListener('click', () => {
+            const text = promptInput.value.trim();
+            if (!text) {
+                writeLog("ERROR: Please input a prompt description.");
+                alert('Tulis deskripsi gambarmu dulu!');
+                return;
+            }
+
+            placeholder.style.display = 'none';
+            resultImage.style.display = 'none';
+            saveBtn.style.display = 'none';
+            loader.style.display = 'block';
+
+            // Mengurus Seed
+            let currentSeed = seedInput.value;
+            if (!lockSeedCheckbox.checked) {
+                currentSeed = Math.floor(Math.random() * 999999);
+                seedInput.value = currentSeed;
+            }
+
+            // Mengurus Ukuran (Width/Height)
+            const [width, height] = ratioSelect.value.split('x');
+
+            writeLog(`[INIT] Generating: "${text}"`);
+            writeLog(`[PARAMS] Size: ${width}x${height} | Seed: ${currentSeed}`);
+
+            // Menggabungkan modifikasi agar hasil Pixel Art sempurna
+            const styleMod = styleSelect.value;
+            const bgMod = bgSelect.value;
+            const fullPrompt = encodeURIComponent(text + styleMod + bgMod + ", clean pixel-perfect sprite sheet style, 8-bit aesthetic");
+
+            const imageUrl = `https://image.pollinations.ai/p/${fullPrompt}?width=${width}&height=${height}&seed=${currentSeed}&nologo=true`;
+
+            // Proses Memuat Gambar
+            resultImage.src = imageUrl;
+
+            resultImage.onload = () => {
+                loader.style.display = 'none';
+                resultImage.style.display = 'block';
+                saveBtn.style.display = 'block';
+                writeLog(`[SUCCESS] Sprite cooked successfully!`);
+                addToHistory(imageUrl, text, currentSeed);
+            };
+
+            resultImage.onerror = () => {
+                loader.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.innerText = 'Gagal memuat. Coba lagi!';
+                writeLog(`[ERROR] AI Core failed to compile pixels.`);
+            };
+        });
+
+        // Tombol Simpan
+        saveBtn.addEventListener('click', async () => {
+            if (!resultImage.src) return;
+            writeLog("Saving game asset to local disk...");
+            try {
+                const response = await fetch(resultImage.src);
+                const blob = await response.blob();
+                const fileUrl = URL.createObjectURL(blob);
+                
+                const tempLink = document.createElement('a');
+                tempLink.href = fileUrl;
+                tempLink.download = `asset_pixel_${Date.now()}.png`;
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                document.body.removeChild(tempLink);
+                
+                writeLog("ASSET SAVED: Ready to be imported to Aseprite/Unity!");
+            } catch (err) {
+                writeLog("ERROR: Auto-save failed. Long press the image to save manually!");
+            }
+        });
+    </script>
+</body>
+</html>
