@@ -1,89 +1,158 @@
-/* Cyberpunk Dark Mode Style */
+/* Mengambil font futuristik khusus hacker/cyberpunk */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root {
+    --bg-dark: #06070d;
+    --panel-bg: rgba(20, 24, 38, 0.85);
+    --neon-cyan: #00f3ff;
+    --neon-pink: #ff007f;
+    --neon-glow: rgba(0, 243, 255, 0.4);
+    --pink-glow: rgba(255, 0, 127, 0.4);
+    --text-main: #e2e8f0;
+}
+
 body {
-    background-color: #0b0c10;
-    color: #c5c6c7;
-    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg-dark);
+    /* Efek aura cahaya ungu dan biru redup di latar belakang */
+    background-image: 
+        radial-gradient(at 50% 0%, rgba(157, 0, 255, 0.2) 0px, transparent 60%),
+        radial-gradient(at 100% 100%, rgba(0, 243, 255, 0.05) 0px, transparent 40%);
+    color: var(--text-main);
+    font-family: 'Share Tech Mono', monospace;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    min-height: 100vh;
     padding: 20px;
     margin: 0;
-}
-.container {
-    max-width: 500px;
-    width: 100%;
-    background: #1f2833;
-    padding: 20px;
-    border-radius: 8px;
-    border: 2px solid #45f3ff;
-    box-shadow: 0 0 15px #45f3ff;
     box-sizing: border-box;
 }
-h1 {
-    color: #45f3ff;
-    text-align: center;
-    text-shadow: 0 0 5px #45f3ff;
-    font-size: 22px;
-    margin-top: 0;
+
+/* Panel utama dengan efek kaca transparan (Glassmorphism) */
+.container {
+    max-width: 450px;
+    width: 100%;
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 30px 25px;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 243, 255, 0.1);
+    box-sizing: border-box;
 }
+
+h1 {
+    color: #fff;
+    text-align: center;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 243, 255, 0.5);
+    font-size: 26px;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+/* Input teks bergaya konsol futuristik */
 input[type="text"] {
     width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    background: #0b0c10;
-    border: 1px solid #66fcf1;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    background: rgba(6, 7, 13, 0.6);
+    border: 1px solid rgba(0, 243, 255, 0.2);
     color: #fff;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 16px;
+    font-family: 'Share Tech Mono', monospace;
     box-sizing: border-box;
+    transition: all 0.3s ease;
 }
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--neon-glow);
+    background: rgba(6, 7, 13, 0.9);
+}
+
 .presets {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
-    gap: 5px;
+    margin-bottom: 20px;
+    gap: 10px;
 }
+
+/* Tombol pilihan ukuran piksel */
 .preset-btn {
-    background: #0b0c10;
-    color: #66fcf1;
-    border: 1px solid #66fcf1;
-    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #8a99ad;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 8px;
     flex: 1;
+    font-size: 14px;
     font-weight: bold;
-    transition: 0.2s;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.2s ease;
 }
+
+.preset-btn:hover {
+    color: #fff;
+    border-color: rgba(0, 243, 255, 0.5);
+    background: rgba(0, 243, 255, 0.05);
+}
+
 .preset-btn.active {
-    background: #66fcf1;
-    color: #0b0c10;
-    box-shadow: 0 0 8px #66fcf1;
+    background: linear-gradient(135deg, #00f3ff, #00b8d4);
+    color: #06070d;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-glow);
 }
+
+/* Tombol utama dengan efek gradasi neon menyala */
 button.main-btn {
     width: 100%;
-    padding: 14px;
-    background: #ff007f;
+    padding: 16px;
+    background: linear-gradient(135deg, #ff007f, #b30059);
     color: white;
     border: none;
     font-weight: bold;
     font-size: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 2px;
     cursor: pointer;
-    border-radius: 4px;
-    box-shadow: 0 0 10px #ff007f;
-    transition: 0.2s;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(255, 0, 127, 0.3);
+    transition: all 0.3s ease;
 }
+
+button.main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px var(--pink-glow);
+    filter: brightness(1.1);
+}
+
+button.main-btn:active {
+    transform: translateY(1px);
+}
+
+/* Bingkai preview gambar */
 .preview-box {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    margin-top: 20px;
-    background: #0b0c10;
-    border: 2px dashed #66fcf1;
+    margin-top: 25px;
+    background: #030408;
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
+
 .preview-box img {
     width: 100%;
     height: 100%;
@@ -91,6 +160,8 @@ button.main-btn {
     image-rendering: pixelated;
     image-rendering: crisp-edges;
 }
+
+/* Desain Grid yang lebih tipis dan estetik */
 .grid-overlay {
     display: none;
     position: absolute;
@@ -101,35 +172,59 @@ button.main-btn {
     pointer-events: none;
     background-size: 6.25% 6.25%;
     background-image: 
-        linear-gradient(to right, rgba(69, 243, 255, 0.25) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(69, 243, 255, 0.25) 1px, transparent 1px);
+        linear-gradient(to right, rgba(0, 243, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 243, 255, 0.15) 1px, transparent 1px);
 }
+
 .grid-overlay.active {
     display: block;
 }
+
 .control-row {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 20px;
 }
+
+/* Tombol kontrol bawah */
 .sub-btn {
     flex: 1;
-    padding: 10px;
-    background: #1f2833;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
     color: #66fcf1;
-    border: 1px solid #66fcf1;
+    border: 1px solid rgba(102, 252, 241, 0.3);
     cursor: pointer;
     font-weight: bold;
-    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
+
+.sub-btn:hover {
+    background: rgba(102, 252, 241, 0.1);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
 .sub-btn.active {
-    background: #45f3ff;
-    color: #0b0c10;
-    box-shadow: 0 0 5px #45f3ff;
+    background: rgba(0, 243, 255, 0.15);
+    border-color: var(--neon-cyan);
+    color: #fff;
+    box-shadow: 0 0 10px var(--neon-glow);
 }
+
+/* Animasi denyut (pulse) teks loading */
 .loading {
-    color: #ff007f;
+    color: var(--neon-pink);
     font-weight: bold;
     display: none;
-    text-shadow: 0 0 5px #ff007f;
+    text-shadow: 0 0 10px var(--neon-pink);
+    animation: pulse 1.5s infinite;
+    letter-spacing: 2px;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; filter: brightness(0.8); }
+    50% { opacity: 1; filter: brightness(1.2); text-shadow: 0 0 15px var(--neon-pink); }
+    100% { opacity: 0.6; filter: brightness(0.8); }
 }
